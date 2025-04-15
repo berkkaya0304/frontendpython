@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Users</h1>
+    <table id="users-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="users-tbody">
+        </tbody>
+    </table>
+
+    <form id="create-user-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age"><br><br>
+        <button type="submit">Create User</button>
+    </form>
+
+    <script>
+        const usersTable = document.getElementById('users-table');
+        const usersTbody = document.getElementById('users-tbody');
+        const createUserForm = document.getElementById('create-user-form');
+
+        // Get all users
+        fetch('/users')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${Object.keys(data).find(key => data[key] === user)}</td>
+                        <td>${user.name}</td>
+                        <td>${user.age}</td>
+                        <td>
+                            <button onclick="getUser(${Object.keys(data).find(key => data[key] === user)})">Get</button>
+                            <button onclick="updateUser(${Object.keys(data).find(key => data[key] === user)})">Update</button>
+                            <button onclick="deleteUser(${Object.keys(data).find(key => data[key] === user)})">Delete</button>
+                        </td>
+                    `;
+                    usersTbody.appendChild(row);
+                });
+            });
+
+        // Create a new user
+        createUserForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            fetch('/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, age })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${Object.keys(data).find(key => data[key] === data)}</td>
+                        <td>${data.name}</td>
+                        <td>${data.age}</td>
+                        <td>
+                            <button onclick="getUser(${Object.keys(data).find(key => data[key] === data)})">Get</button>
+                            <button onclick="updateUser(${Object.keys(data).find(key => data[key] === data)})">Update</button>
+                            <button onclick="deleteUser(${Object.keys(data).find(key => data[key] === data)})">Delete</button>
+                        </td>
+                    `;
+                    usersTbody.appendChild(row);
+                });
+        });
+
+        // Get a user by ID
+        function getUser(id) {
+            fetch(`/users/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    alert(`User ${id}: ${data.name}, ${data.age}`);
+                });
+        }
+
+        // Update a user
+        function updateUser(id) {
+            const name = prompt('Enter new name:');
+            const age = prompt('Enter new age:');
+            fetch(`/users/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, age })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`User ${id} updated: ${data.name}, ${data.age}`);
+                });
+        }
+
+        // Delete a user
+        function deleteUser(id) {
+            fetch(`/users/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`User ${id} deleted`);
+                });
+        }
+    </script>
+</body
