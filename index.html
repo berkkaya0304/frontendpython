@@ -45,6 +45,12 @@
         const createUserForm = document.getElementById('create-user-form');
         const BACKEND_URL = window.BACKEND_URL || "http://localhost:8080";
 
+        function generateId() {
+    // Basit rastgele bir string, örnek: 1705938412789_3 gibi bir şey
+    return Date.now().toString() + "_" + Math.floor(Math.random() * 100000);
+}
+
+
         // Get all users
         fetch(window.BACKEND_URL + '/users')
             .then(response => response.json())
@@ -67,32 +73,33 @@
 
         // Create a new user
         createUserForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            fetch(window.BACKEND_URL + '/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, age })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${Object.keys(data).find(key => data[key] === data)}</td>
-                        <td>${data.name}</td>
-                        <td>${data.age}</td>
-                        <td>
-                            <button onclick="getUser(${Object.keys(data).find(key => data[key] === data)})">Get</button>
-                            <button onclick="updateUser(${Object.keys(data).find(key => data[key] === data)})">Update</button>
-                            <button onclick="deleteUser(${Object.keys(data).find(key => data[key] === data)})">Delete</button>
-                        </td>
-                    `;
-                    usersTbody.appendChild(row);
-                });
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const id = generateId(); // yeni id üret
+    fetch(window.BACKEND_URL + '/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, name, age })
+    })
+        .then(response => response.json())
+        .then(data => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${id}</td>
+                <td>${name}</td>
+                <td>${age}</td>
+                <td>
+                    <button onclick="getUser('${id}')">Get</button>
+                    <button onclick="updateUser('${id}')">Update</button>
+                    <button onclick="deleteUser('${id}')">Delete</button>
+                </td>
+            `;
+            usersTbody.appendChild(row);
         });
+});
 
         // Get a user by ID
         function getUser(id) {
