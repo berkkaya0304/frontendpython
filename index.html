@@ -42,6 +42,7 @@
         const usersTable = document.getElementById('users-table');
         const usersTbody = document.getElementById('users-tbody');
         const createUserForm = document.getElementById('create-user-form');
+        const BACKEND_URL = window.BACKEND_URL || "http://localhost:8080";
 
         // Get all users
         fetch('/users')
@@ -68,7 +69,7 @@
             e.preventDefault();
             const name = document.getElementById('name').value;
             const age = document.getElementById('age').value;
-            fetch('/users', {
+            fetch('${BACKEND_URL}/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -94,7 +95,7 @@
 
         // Get a user by ID
         function getUser(id) {
-            fetch(`/users/${id}`)
+            fetch(`${BACKEND_URL}/users/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     alert(`User ${id}: ${data.name}, ${data.age}`);
@@ -105,7 +106,7 @@
         function updateUser(id) {
             const name = prompt('Enter new name:');
             const age = prompt('Enter new age:');
-            fetch(`/users/${id}`, {
+            fetch(`${BACKEND_URL}/users/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -120,7 +121,7 @@
 
         // Delete a user
         function deleteUser(id) {
-            fetch(`/users/${id}`, {
+            fetch(`${BACKEND_URL}/users/${id}`, {
                 method: 'DELETE'
             })
                 .then(response => response.json())
