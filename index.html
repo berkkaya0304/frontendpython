@@ -40,6 +40,8 @@
     </form>
 
     <script>
+        window.onload = loadUsers;
+        
         const usersTable = document.getElementById('users-table');
         const usersTbody = document.getElementById('users-tbody');
         const createUserForm = document.getElementById('create-user-form');
@@ -48,6 +50,29 @@
         function generateId() {
     // Basit rastgele bir string, örnek: 1705938412789_3 gibi bir şey
     return Date.now().toString() + "_" + Math.floor(Math.random() * 100000);
+}
+
+        function loadUsers() {
+    usersTbody.innerHTML = ""; // Önce tabloyu temizle
+    fetch(window.BACKEND_URL + '/users')
+        .then(response => response.json())
+        .then(data => {
+            for (const id in data) {
+                const user = data[id];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.age}</td>
+                    <td>
+                        <button onclick="getUser('${id}')">Get</button>
+                        <button onclick="updateUser('${id}')">Update</button>
+                        <button onclick="deleteUser('${id}')">Delete</button>
+                    </td>
+                `;
+                usersTbody.appendChild(row);
+            }
+        });
 }
 
 
@@ -98,6 +123,7 @@
                 </td>
             `;
             usersTbody.appendChild(row);
+            loadUsers(); 
         });
 });
 
@@ -112,30 +138,32 @@
 
         // Update a user
         function updateUser(id) {
-            const name = prompt('Enter new name:');
-            const age = prompt('Enter new age:');
-            fetch(window.BACKEND_URL + `/users/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, age })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert(`User ${id} updated: ${data.name}, ${data.age}`);
-                });
-        }
+    const name = prompt('Enter new name:');
+    const age = prompt('Enter new age:');
+    fetch(window.BACKEND_URL + `/users/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, age })
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(`User ${id} updated: ${data.name}, ${data.age}`);
+            loadUsers(); // Tabloyu yenile!
+        });
+}
 
         // Delete a user
         function deleteUser(id) {
-            fetch(window.BACKEND_URL+`/users/${id}`, {
-                method: 'DELETE'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert(`User ${id} deleted`);
-                });
-        }
+    fetch(window.BACKEND_URL + `/users/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(`User ${id} deleted`);
+        loadUsers(); // Tabloyu yenile!
+    });
+}
     </script>
 </body
